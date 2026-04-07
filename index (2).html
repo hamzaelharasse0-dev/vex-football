@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ScoreX Ultra Pro | The Future of Football</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #050507;
+            --surface: rgba(18, 18, 24, 0.65);
+            --surface-bright: rgba(30, 30, 40, 0.8);
+            --accent: #00ffa3;
+            --accent-glow: rgba(0, 255, 163, 0.25);
+            --text-main: #ffffff;
+            --text-dim: #84849a;
+            --border: rgba(255, 255, 255, 0.06);
+            --glass: blur(25px);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        [data-theme="light"] {
+            --bg: #f4f7f9;
+            --surface: rgba(255, 255, 255, 0.7);
+            --surface-bright: #ffffff;
+            --text-main: #0f172a;
+            --text-dim: #64748b;
+            --border: rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- GPU ACCELERATED BACKGROUND --- */
+        .orb {
+            position: fixed; width: 600px; height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            z-index: -1; border-radius: 50%; filter: blur(80px);
+            animation: move 20s infinite alternate ease-in-out;
+        }
+        @keyframes move { from { transform: translate(-20%, -20%); } to { transform: translate(50%, 40%); } }
+
+        /* --- DYNAMIC ISLAND NOTIFICATION --- */
+        #dynamic-island {
+            position: fixed; top: 15px; left: 50%; transform: translateX(-50%) scale(0.8);
+            min-width: 180px; height: 40px; background: #000; color: #fff;
+            border-radius: 25px; z-index: 10000; display: flex; align-items: center;
+            justify-content: center; padding: 0 20px; font-size: 0.8rem; font-weight: 700;
+            opacity: 0; visibility: hidden; transition: all 0.6s var(--ease-out);
+            border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        #dynamic-island.active { transform: translateX(-50%) scale(1); opacity: 1; visibility: visible; height: 50px; min-width: 280px; }
+
+        /* --- SPLASH ENGINE --- */
+        #splash {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1s var(--ease-out), visibility 1s;
+        }
+        .logo-reveal {
+            font-size: 2.5rem; font-weight: 800; letter-spacing: -2px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            transform: translateY(20px); opacity: 0; animation: reveal 1s forwards 0.3s;
+        }
+        @keyframes reveal { to { transform: translateY(0); opacity: 1; } }
+
+        /* --- PREMIUM HEADER --- */
+        header {
+            position: sticky; top: 0; z-index: 1000; padding: 20px 24px;
+            background: rgba(5, 5, 7, 0.4); backdrop-filter: var(--glass);
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .brand { font-weight: 800; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 15px var(--accent); }
+
+        /* --- NAVIGATION DOCK --- */
+        .dock {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--surface); backdrop-filter: var(--glass);
+            border: 1px solid var(--border); border-radius: 30px; padding: 8px;
+            display: flex; gap: 5px; z-index: 9000; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .dock-item {
+            width: 55px; height: 55px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; border-radius: 22px;
+            color: var(--text-dim); transition: 0.3s var(--ease-out); cursor: pointer;
+        }
+        .dock-item.active { background: var(--surface-bright); color: var(--accent); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .dock-item svg { width: 24px; height: 24px; }
+
+        /* --- CONTENT AREA --- */
+        main { padding: 20px 24px 140px 24px; max-width: 800px; margin: 0 auto; }
+        .page { display: none; }
+        .page.active { display: block; animation: slideUp 0.7s var(--ease-out); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- SAAS CARDS --- */
+        .glass-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 28px; padding: 20px; margin-bottom: 20px;
+            transition: 0.4s var(--ease-out); position: relative; overflow: hidden;
+        }
+        .glass-card:hover { transform: scale(1.02); background: var(--surface-bright); border-color: var(--accent); }
+
+        .live-badge {
+            background: rgba(255, 70, 70, 0.15); color: #ff4646; font-size: 0.65rem;
+            font-weight: 800; padding: 4px 10px; border-radius: 8px;
+            display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px;
+        }
+        .pulse { width: 6px; height: 6px; background: #ff4646; border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .match-row { display: grid; grid-template-columns: 1fr 120px 1fr; align-items: center; }
+        .team-info { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .team-logo { width: 56px; height: 56px; object-fit: contain; }
+        .team-name { font-weight: 700; font-size: 0.85rem; text-align: center; color: var(--text-main); }
+        
+        .score-wrap { text-align: center; }
+        .score { font-size: 2.4rem; font-weight: 800; letter-spacing: -2px; font-family: 'Inter'; }
+        .time-elapsed { font-size: 0.7rem; font-weight: 800; color: var(--accent); }
+
+        /* --- STATS ENGINE --- */
+        .stat-row { margin: 18px 0; }
+        .stat-meta { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 8px; font-weight: 600; color: var(--text-dim); }
+        .stat-track { height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; overflow: hidden; }
+        .stat-bar { height: 100%; background: var(--accent); border-radius: 10px; transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        /* --- SEARCH ENGINE --- */
+        .search-wrapper { position: relative; margin-bottom: 30px; }
+        .search-input {
+            width: 100%; background: var(--surface); border: 1px solid var(--border);
+            padding: 20px 25px; border-radius: 20px; color: #fff; font-size: 1rem;
+            outline: none; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--accent); background: var(--surface-bright); }
+
+        /* --- FAVORITES BUTTON --- */
+        .fav-trigger {
+            position: absolute; top: 20px; right: 20px; background: none; border: none;
+            color: var(--text-dim); cursor: pointer; transition: 0.3s;
+        }
+        .fav-trigger.active { color: #facc15; }
+
+        /* --- TABLE STYLE --- */
+        .standings-table { width: 100%; border-collapse: collapse; }
+        .standings-table th { text-align: left; padding: 12px; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+        .standings-table td { padding: 16px 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .rank-num { font-weight: 800; color: var(--accent); width: 40px; }
+        
+        /* Mobile Optimization */
+        @media (max-width: 600px) {
+            .score { font-size: 1.8rem; }
+            .team-logo { width: 42px; height: 42px; }
+            main { padding: 15px 15px 140px 15px; }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div class="orb"></div>
+    <div id="dynamic-island">Checking for live updates...</div>
+
+    <div id="splash">
+        <div class="logo-reveal">SCOREX PRO</div>
+        <div style="width: 150px; height: 2px; background: rgba(255,255,255,0.1); margin-top: 20px; position: relative; overflow: hidden;">
+            <div style="position: absolute; width: 60%; height: 100%; background: var(--accent); animation: load 1.5s infinite;"></div>
+        </div>
+    </div>
+
+    <header>
+        <div class="brand" onclick="Core.navigate('home')"><div class="dot"></div> SCOREX</div>
+        <button onclick="Core.toggleTheme()" style="background:none; border:none; color:var(--text-main); cursor:pointer;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path></svg>
+        </button>
+    </header>
+
+    <main>
+        <section id="view-home" class="page active">
+            <h2 style="font-weight: 800; font-size: 1.8rem; margin-bottom: 25px;">Live Feed</h2>
+            <div id="live-feed">
+                <div class="glass-card" style="height: 150px; opacity: 0.5;"></div>
+                <div class="glass-card" style="height: 150px; opacity: 0.3;"></div>
+            </div>
+        </section>
+
+        <section id="view-standings" class="page">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                <h2 style="font-weight: 800;">Premier League</h2>
+                <select id="league-picker" onchange="Core.loadStandings(this.value)" style="background:var(--surface); color:#fff; border:1px solid var(--border); padding:10px; border-radius:12px;">
+                    <option value="39">English Premier League</option>
+                    <option value="140">La Liga</option>
+                    <option value="78">Bundesliga</option>
+                </select>
+            </div>
+            <div class="glass-card" style="padding: 0; overflow-x: auto;">
+                <table class="standings-table">
+                    <thead><tr><th>#</th><th>Team</th><th>PL</th><th>GD</th><th>PTS</th></tr></thead>
+                    <tbody id="standings-list"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="view-search" class="page">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="Search matches or teams..." oninput="Core.search(this.value)">
+            </div>
+            <div id="search-results"></div>
+        </section>
+
+        <section id="view-favorites" class="page">
+            <h2 style="font-weight: 800; margin-bottom: 25px;">Followed Teams</h2>
+            <div id="fav-list"></div>
+        </section>
+
+        <section id="view-details" class="page">
+            <button onclick="Core.navigate('home')" style="background:none; border:none; color:var(--accent); font-weight:700; cursor:pointer; margin-bottom:20px;">← BACK</button>
+            <div id="match-full-details"></div>
+        </section>
+    </main>
+
+    <nav class="dock">
+        <div class="dock-item active" onclick="Core.navigate('home')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <div class="dock-item" onclick="Core.navigate('standings')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+        </div>
+        <div class="dock-item" onclick="Core.navigate('search')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+        <div class="dock-item" onclick="Core.navigate('favorites')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        </div>
+    </nav>
+
+    <script>
+        /**
+         * SCOREX ULTRA PRO: THE CORE ENGINE
+         * Senior Engineer: Gemini 3 Flash Implementation
+         */
+        
+        const Core = {
+            config: {
+                apiKey: '0275879132acee31bc02802f813d8f28',
+                url: 'https://v3.football.api-sports.io'
+            },
+            state: {
+                live: [],
+                favs: JSON.parse(localStorage.getItem('scorex_pro_favs')) || []
+            },
+
+            async init() {
+                this.fetchLive();
+                setInterval(() => this.fetchLive(), 30000);
+                
+                // Remove Splash
+                setTimeout(() => {
+                    document.getElementById('splash').style.opacity = '0';
+                    setTimeout(() => document.getElementById('splash').style.visibility = 'hidden', 1000);
+                    this.notify("System Live: Syncing Fixtures");
+                }, 2500);
+            },
+
+            async api(path) {
+                try {
+                    const r = await fetch(`${this.config.url}/${path}`, {
+                        headers: { 'x-apisports-key': this.config.apiKey, 'x-rapidapi-host': 'v3.football.api-sports.io' }
+                    });
+                    const d = await r.json();
+                    return d.response;
+                } catch (e) {
+                    this.notify("Sync Error: Check Connection", true);
+                    return null;
+                }
+            },
+
+            navigate(id) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.dock-item').forEach(i => i.classList.remove('active'));
+                
+                document.getElementById(`view-${id}`).classList.add('active');
+                
+                // Dock update logic
+                const items = document.querySelectorAll('.dock-item');
+                if(id === 'home') items[0].classList.add('active');
+                if(id === 'standings') { items[1].classList.add('active'); this.loadStandings(39); }
+                if(id === 'search') items[2].classList.add('active');
+                if(id === 'favorites') { items[3].classList.add('active'); this.renderFavs(); }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            async fetchLive() {
+                const data = await this.api('fixtures?live=all');
+                if (data) {
+                    this.state.live = data;
+                    this.renderMatches(data, 'live-feed');
+                }
+            },
+
+            renderMatches(matches, targetId) {
+                const container = document.getElementById(targetId);
+                if (!matches.length) {
+                    container.innerHTML = `<div class="glass-card" style="text-align:center; color:var(--text-dim)">No live matches in this cycle.</div>`;
+                    return;
+                }
+
+                container.innerHTML = matches.map(m => `
+                    <div class="glass-card" onclick="Core.matchDetails(${m.fixture.id})">
+                        <button class="fav-trigger ${this.state.favs.includes(m.teams.home.id) ? 'active' : ''}" 
+                                onclick="event.stopPropagation(); Core.toggleFav(${m.teams.home.id}, '${m.teams.home.name}')">
+                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        </button>
+                        <div class="live-badge"><div class="pulse"></div> ${m.fixture.status.short}</div>
+                        <div class="match-row">
+                            <div class="team-info">
+                                <img src="${m.teams.home.logo}" class="team-logo">
+                                <span class="team-name">${m.teams.home.name}</span>
+                            </div>
+                            <div class="score-wrap">
+                                <div class="time-elapsed">${m.fixture.status.elapsed}'</div>
+                                <div class="score">${m.goals.home} - ${m.goals.away}</div>
+                            </div>
+                            <div class="team-info">
+                                <img src="${m.teams.away.logo}" class="team-logo">
+                                <span class="team-name">${m.teams.away.name}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            async loadStandings(lid) {
+                const body = document.getElementById('standings-list');
+                body.innerHTML = '<tr><td colspan="5" style="text-align:center">Syncing Database...</td></tr>';
+                const data = await this.api(`standings?league=${lid}&season=2023`);
+                if (data) {
+                    const table = data[0].league.standings[0];
+                    body.innerHTML = table.map(t => `
+                        <tr>
+                            <td class="rank-num">${t.rank}</td>
+                            <td style="display:flex; align-items:center; gap:10px;"><img src="${t.team.logo}" width="24"> <b>${t.team.name}</b></td>
+                            <td>${t.all.played}</td>
+                            <td style="color:${t.goalsDiff >= 0 ? 'var(--accent)' : '#ff4646'}">${t.goalsDiff}</td>
+                            <td style="font-weight:800">${t.points}</td>
+                        </tr>
+                    `).join('');
+                }
+            },
+
+            async matchDetails(id) {
+                this.navigate('details');
+                const container = document.getElementById('match-full-details');
+                container.innerHTML = '<div class="glass-card" style="height:300px">Loading Real-time Telemetry...</div>';
+                
+                const data = await this.api(`fixtures?id=${id}`);
+                if (!data) return;
+                const m = data[0];
+                const stats = m.statistics || [];
+
+                container.innerHTML = `
+                    <div class="glass-card">
+                        <div style="text-align:center; font-size:0.7rem; font-weight:800; color:var(--accent); margin-bottom:20px;">${m.league.name.toUpperCase()}</div>
+                        <div class="match-row">
+                            <div class="team-info"><img src="${m.teams.home.logo}" width="70"><h3>${m.teams.home.name}</h3></div>
+                            <div class="score" style="font-size:3.5rem">${m.goals.home} - ${m.goals.away}</div>
+                            <div class="team-info"><img src="${m.teams.away.logo}" width="70"><h3>${m.teams.away.name}</h3></div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin:30px 0 15px;">Match Performance</h3>
+                    <div class="glass-card">
+                        ${stats.length ? stats[0].statistics.map((s, i) => {
+                            const vH = parseInt(s.value) || 0;
+                            const vA = parseInt(stats[1].statistics[i].value) || 0;
+                            const total = vH + vA || 1;
+                            return `
+                                <div class="stat-row">
+                                    <div class="stat-meta"><span>${vH}</span><span>${s.type}</span><span>${vA}</span></div>
+                                    <div class="stat-track"><div class="stat-bar" style="width: ${(vH/total)*100}%"></div></div>
+                                </div>
+                            `;
+                        }).join('') : '<p>Live stats not available for this fixture.</p>'}
+                    </div>
+                `;
+            },
+
+            search(q) {
+                const results = this.state.live.filter(m => 
+                    m.teams.home.name.toLowerCase().includes(q.toLowerCase()) || 
+                    m.teams.away.name.toLowerCase().includes(q.toLowerCase())
+                );
+                this.renderMatches(results, 'search-results');
+            },
+
+            toggleFav(id, name) {
+                if (this.state.favs.includes(id)) {
+                    this.state.favs = this.state.favs.filter(f => f !== id);
+                    this.notify(`Unfollowed ${name}`);
+                } else {
+                    this.state.favs.push(id);
+                    this.notify(`Following ${name}`);
+                }
+                localStorage.setItem('scorex_pro_favs', JSON.stringify(this.state.favs));
+                this.renderMatches(this.state.live, 'live-feed');
+            },
+
+            renderFavs() {
+                const filtered = this.state.live.filter(m => this.state.favs.includes(m.teams.home.id) || this.state.favs.includes(m.teams.away.id));
+                this.renderMatches(filtered, 'fav-list');
+            },
+
+            notify(msg, isError = false) {
+                const island = document.getElementById('dynamic-island');
+                island.innerText = msg;
+                island.style.borderColor = isError ? '#ff4646' : 'var(--accent)';
+                island.classList.add('active');
+                setTimeout(() => island.classList.remove('active'), 3500);
+            },
+
+            toggleTheme() {
+                const b = document.body;
+                b.setAttribute('data-theme', b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            }
+        };
+
+        Core.init();
+    </script>
+</body>
+</html>
